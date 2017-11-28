@@ -15,7 +15,7 @@ public class MainClass{
 		System.out.println("(-1)/2="+i);
 		
 		System.out.println("print for t");
-		System.out.println("test tt");
+		System.out.println("test ftt");
 		
 		//this is a comment for test.
 	}
