@@ -14,7 +14,7 @@ public class MainClass{
 		i= (int)-1.5;
 		System.out.println("(-1)/2="+i);
 		
-		System.out.println("print for test");
+		System.out.println("print for t");
 		
 		//this is a comment for test.
 	}
