@@ -1,23 +1,24 @@
-import java.lang.System.*;
+import static java.lang.System.out;
 
 
 public class MainClass{
 	
 	public static void main(String args[]) {
 
-		int i;
+		StringBuffer sb;
 		
-		i = 1/2;
+		sb = new StringBuffer("test sb");
+		out.println(sb);
 		
-		System.out.println("1/2="+i);
+		testfunc(sb);
 		
-		i= (int)-1.5;
-		System.out.println("(-1)/2="+i);
-		
-		System.out.println("print for t");
-		System.out.println("test ftt");
-		
+		out.println(sb);
 		//this is a comment for test.
+	}
+	
+	
+	private static void testfunc(StringBuffer strbuf) {
+		strbuf.append(" appended by testfunc");
 	}
 	
 }

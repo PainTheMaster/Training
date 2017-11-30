@@ -2,7 +2,7 @@ package msPattern;
 
 import miscservice.HeapSort;
 
-public class Element {
+public class Element implements Cloneable{
 	
 	private String symbol;
 	private int atomicNo;
@@ -25,6 +25,33 @@ public class Element {
 		this.atomicExactMass = atomicExactMass;
 		numIsotope = 0;
 	}
+	
+	
+	public Element() {
+		this.symbol = null;
+		this.atomicNo = 0;
+		this.atomicWeight = 0.0;
+		this.atomicExactMass = 0.0;
+		numIsotope = 0;
+	}
+	
+	
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
+	
+	public void setAtomicNo(int atomicNo) {
+		this.atomicNo = atomicNo;
+	}
+	
+	public void setAtomicWeight(double atomicWeight) {
+		this.atomicWeight = atomicWeight;
+	}
+	
+	public void setAtomicExactMass(double atomicExactMass) {
+		this.atomicExactMass = atomicExactMass;
+	}
+	
 	
 	
 	public void setIsotope(double mass, double abundance) {
@@ -81,5 +108,26 @@ public class Element {
 	}
 	
 	
+	
+	public Element clone() {
+		
+		Element temp = null;
+		
+		try {
+			temp = (Element) super.clone();
+		}
+		catch(Exception e) {
+			
+		}
+		
+		for(int i = 0; i<=numIsotope-1; i++) {
+			temp.isotopes[i] = this.isotopes[i].clone();
+		}
+		
+		return temp;
+		
+	}
+	
+
 	
 }

@@ -1,4 +1,4 @@
-package tablereader;
+package readers;
 
 public interface SiTableReader{
 	//‹¤’Ê

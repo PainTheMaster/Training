@@ -1,4 +1,4 @@
-package tablereader;
+package readers;
 
 import java.io.*;
 
@@ -252,7 +252,7 @@ public class TableReader implements SiTableReader {
 	
 	//呼び出されるごとに１行を読み込み、各要素をstringbuilder[]に格納しデータが入っていれば随伴配列filled[]にtrueを。そうでなければfalseを入れる。
 	//戻り値は読み込んだデータ数。読み込んだときにファイル終端であればEND_OF_FILEを返す。
-	スタブ。テーブルの各要素をStringBuilderオブジェクトに入れて返すメソッド。
+
 	public int getLineElemsStr(StringBuilder[] stringbuilder, boolean[] filled) {
 		
 		int idx_elem, gt_ans;
@@ -298,8 +298,8 @@ public class TableReader implements SiTableReader {
 				filled[idx_elem] = false;
 			}
 			else {											//データとしてなにかしら有ったた場合
-				stringbuilder[idx_elem]=token;
-				//val[idx_elem] = Double.parseDouble(token.toString());
+				stringbuilder[idx_elem].setLength(0);
+				stringbuilder[idx_elem].append(token);
 				filled[idx_elem] = true;
 			}
 			
