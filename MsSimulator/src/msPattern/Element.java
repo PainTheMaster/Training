@@ -108,7 +108,7 @@ public class Element implements Cloneable{
 	}
 	
 	
-	
+	@Override
 	public Element clone() {
 		
 		Element temp = new Element();
@@ -127,6 +127,24 @@ public class Element implements Cloneable{
 		return temp;
 		
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder();
+		
+		buf.append("Symbol: "+symbol+"\n");
+		buf.append("No: "+ atomicNo +"\n");
+		buf.append("atomicWeight: "+atomicWeight+"\n");
+		buf.append("exactMass: "+atomicExactMass+"\n");
+		buf.append("Number of isotopes: "+numIsotope+"\n");
+		for(int i=0; i <= numIsotope-1;i++) {
+			buf.append(isotopes[i].toString()+"\n");
+		}
+		
+		return buf.toString();
+	}
+	
+	
 	
 
 	

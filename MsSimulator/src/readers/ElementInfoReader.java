@@ -35,10 +35,11 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 	
 	
 	public Element[] setElements() {
-		Element tempElem = new Element();
+		Element tempElem;
 		int rtnUtilFunc;
 		
 		do {
+			tempElem = new Element();
 			rtnUtilFunc = analBlock(tempElem);
 			
 			if(tempElem.getSymbol() != null) {

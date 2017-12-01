@@ -66,6 +66,13 @@ public class Isotope implements ModeComparable<Isotope>, Comparable<Isotope>, Cl
 		
 		return temp;
 	}
+	
+	@Override
+	public String toString() {
+		String ans;
+		ans = "mass: "+mass+", abundance:" + abundance;
+		return ans;
+	}
 
 
 }
