@@ -55,7 +55,7 @@ public class Isotope implements ModeComparable<Isotope>, Comparable<Isotope>, Cl
 	@Override
 	public Isotope clone() {
 		
-		Isotope temp = null;
+		Isotope temp = new Isotope();
 		
 		try {
 			temp = (Isotope) super.clone();

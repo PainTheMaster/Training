@@ -11,8 +11,8 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 	int idxBufElem;
 	
 	int currentLine;
-	StringBuilder[] bufStrBuild;
-	boolean[] filled;
+//	StringBuilder[] bufStrBuild;
+//	boolean[] filled;
 	
 	
 	
@@ -20,11 +20,11 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 		this.tabread = new TableReader(tableName, delimiter);
 
 		
-		bufStrBuild = new StringBuilder[NUMBER_OF_COL];
+/*		bufStrBuild = new StringBuilder[NUMBER_OF_COL];
 		for(int i = 0; i <= NUMBER_OF_COL -1; i++)
 			bufStrBuild[i] = new StringBuilder();
 		
-		filled = new boolean[NUMBER_OF_COL];
+		filled = new boolean[NUMBER_OF_COL]; */
 		
 		bufElem = new Element[NUMBER_BUF_ELEM];
 		idxBufElem = 0;
@@ -39,19 +39,21 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 		int rtnUtilFunc;
 		
 		do {
-			
 			rtnUtilFunc = analBlock(tempElem);
+			
 			if(tempElem.getSymbol() != null) {
 				bufElem[idxBufElem] = tempElem.clone();
 				idxBufElem++;
 			}
-			
 		}
 		while(rtnUtilFunc != END_OF_FILE );
+		//このwhileループを抜けた時点で、idxBufElemはデータが入っているところの次のインデックスを指していることに注意（そして、それは読み込んだ元素数に等しい）
 		
-		ansElem = new Element[idxBufElem];
+		idxBufElem--;
 		
-		for(int i = 0; i <= idxBufElem - 1; i++) {
+		ansElem = new Element[idxBufElem+1];
+		
+		for(int i = 0; i <= idxBufElem; i++) {
 			ansElem[i] = bufElem[i].clone();
 		}
 		
@@ -59,71 +61,74 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 	}
 	
 	
-	
+	//最初に空白行を読み飛ばした後、ブロックを解析しElementオブジェクトにデータを入れて返すメソッド.
+	//ブロックを読んだ後、空白行に当たったら、その行を読んで終わる。
+	//通常はTableReader.getLineElemStrの戻り値をそのまま返す。ファイル終端に達した場合END_OF_FILEを返す。
 	private int analBlock(Element element) {
 		
 		int from, to, charac;
 		int rtnUtilFunc;
-		int myLine;
+		int lineInBlock;
 		
-		double[][] isotope = new double[MAX_NUM_ISOTOPE][2];
+//		double[][] isotope = new double[MAX_NUM_ISOTOPE][2];
 		
-		String symbol;
-		double exactMass, atomicWeight, isotopeMass, abund;
-		int atomicNo;
+		String symbol;											//説明変数
+		double exactMass, atomicWeight, isotopeMass, abund;		//説明変数
+		int atomicNo;											//説明変数
 		
-		StringBuilder[] bufBufStrBuild = new StringBuilder[NUMBER_OF_COL];
-		for(int i = 0; i<= NUMBER_OF_COL-1; i++ )
-			bufBufStrBuild[i] = new StringBuilder();
+		StringBuilder[] bufStrBuild;
+				bufStrBuild = new StringBuilder[NUMBER_OF_COL];
+		for(int i = 0; i <= NUMBER_OF_COL -1; i++)
+			bufStrBuild[i] = new StringBuilder();
 		
+		boolean[] filled;
+		filled = new boolean[NUMBER_OF_COL];
+	
+		//空白行を飛ばす。内容のある行は第0要素が必ずあるのでfilled[0]を紹介すれば空白行か否か分かる。
+		do {
+			rtnUtilFunc = tabread.getLineElemsStr(bufStrBuild, filled);
+		}
+		while(filled[0] == false && rtnUtilFunc != END_OF_FILE);
 		
-		myLine = 0;
-
+		if(rtnUtilFunc == END_OF_FILE)
+			return END_OF_FILE;
+		
+		lineInBlock = 0;
 		do{
-						
-			if(myLine == 0) {
-				for(int i = 0; i <= NUMBER_OF_COL-1; i++) {
-					bufBufStrBuild[i].setLength(0);
-					bufBufStrBuild[i].append(bufStrBuild[i]);
-				}
-				rtnUtilFunc = END_OF_FILE +1;
-			}
-			else {
-				rtnUtilFunc = tabread.getLineElemsStr(bufBufStrBuild, filled);
-			}
+			if (lineInBlock != 0)
+				rtnUtilFunc = tabread.getLineElemsStr(bufStrBuild, filled);
 						
 			
 			if(filled[0] == true) {
-				
 			
-				if('0' <= (charac = bufBufStrBuild[0].codePointAt(0)) && charac <= '9') {
+				if('0' <= (charac = bufStrBuild[0].codePointAt(0)) && charac <= '9') {		//アイソトープだった場合。
 					//0列目が質量数。1列目が精密質量, 2列目がabundance
-					isotopeMass = Double.parseDouble(bufBufStrBuild[COL_ISOTOPE_MASS].toString());
-					abund = Double.parseDouble(bufBufStrBuild[COL_ABUND].toString());
+					isotopeMass = Double.parseDouble(bufStrBuild[COL_ISOTOPE_MASS].toString());
+					abund = Double.parseDouble(bufStrBuild[COL_ABUND].toString()) / 100.0;
 					element.setIsotope(isotopeMass, abund);
 				}
-				else if(bufBufStrBuild[0].codePointAt(0) == PAREN_L) {
+				else if(bufStrBuild[0].codePointAt(0) == PAREN_L) {			//[]で囲まれた元素記号の場合。
 					from = 0+1;
-					to = bufBufStrBuild[0].toString().indexOf(PAREN_R);
+					to = bufStrBuild[0].toString().indexOf(PAREN_R);
 					
-					symbol = bufBufStrBuild[0].substring(from, to); //substringはto-1のインデックスまでを切り出すことに注意
+					symbol = bufStrBuild[0].substring(from, to); //substringはto-1のインデックスまでを切り出すことに注意
 					element.setSymbol(symbol);
 				}
-				else if(bufBufStrBuild[0].indexOf(ATOMIC_NO) != -1) {	//indexOf はマッチがなければ-1を返すので文字列判定に使える.
-					atomicNo = Integer.parseInt(bufBufStrBuild[1].toString());
+				else if(bufStrBuild[0].indexOf(ATOMIC_NO) != -1) {	//indexOf はマッチがなければ-1を返すので文字列含有判定に使える.
+					atomicNo = Integer.parseInt(bufStrBuild[1].toString());
 					element.setAtomicNo(atomicNo);
 				}
-				else if(bufBufStrBuild[0].indexOf(EXACT_MASS) != -1) {
-					exactMass = Double.parseDouble(bufBufStrBuild[1].toString());
+				else if(bufStrBuild[0].indexOf(EXACT_MASS) != -1) {
+					exactMass = Double.parseDouble(bufStrBuild[1].toString());
 					element.setAtomicExactMass(exactMass);
 				}
-				else if(bufBufStrBuild[0].indexOf(MASS_OF_ATOM) != -1) {
-					atomicWeight = Double.parseDouble(bufBufStrBuild[1].toString());
+				else if(bufStrBuild[0].indexOf(ATOMIC_WEIGHT) != -1) {
+					atomicWeight = Double.parseDouble(bufStrBuild[1].toString());
 					element.setAtomicWeight(atomicWeight);
 				}
 			}
 			
-			myLine++;
+			lineInBlock++;
 		}
 		while(rtnUtilFunc != END_OF_FILE && filled[0]);
 		
@@ -132,8 +137,8 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 	
 	
 	
-	
-	private int skipBlankLine() {
+//このメソッドは廃止する。
+/*	private int skipBlankLine() {
 		
 		int idxCol;
 		int numElem;
@@ -142,11 +147,11 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 		boolean filledChecker = false;
 
 		
-/*		StringBuilder[] bufBufStrBuild = new StringBuilder[NUMBER_OF_COL];
+		StringBuilder[] bufBufStrBuild = new StringBuilder[NUMBER_OF_COL];
 		for(int i = 0; i <= NUMBER_OF_COL -1; i++) {
 			bufBufStrBuild[i] = new StringBuilder();
 			bufBufStrBuild[i].setLength(0);
-		}*/
+		}
 		
 		
 		
@@ -160,14 +165,14 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 		 while(filledChecker == false && numElem != END_OF_FILE);
 		
 		
-/*		for(idxCol = 0; idxCol <= NUMBER_OF_COL-1; idxCol++) {
+/		for(idxCol = 0; idxCol <= NUMBER_OF_COL-1; idxCol++) {
 			bufStrBuild[idxCol].setLength(0);
 			bufStrBuild[idxCol].append(bufBufStrBuild[idxCol]);
-		}*/
+		}
 		
 		return numElem;
 		
-	}
+	}*/
 	
 	
 	
@@ -195,6 +200,6 @@ interface SiElementInfoReader{
 	
 	
 	public static final String ATOMIC_NO = "Atomic Number";
-	public static final String MASS_OF_ATOM = "Mass of Atom";
+	public static final String ATOMIC_WEIGHT = "Atomic Weight";
 	public static final String EXACT_MASS = "Exact Mass";
 }

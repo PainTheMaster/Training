@@ -252,7 +252,6 @@ public class TableReader implements SiTableReader {
 	
 	//呼び出されるごとに１行を読み込み、各要素をstringbuilder[]に格納しデータが入っていれば随伴配列filled[]にtrueを。そうでなければfalseを入れる。
 	//戻り値は読み込んだデータ数。読み込んだときにファイル終端であればEND_OF_FILEを返す。
-
 	public int getLineElemsStr(StringBuilder[] stringbuilder, boolean[] filled) {
 		
 		int idx_elem, gt_ans;

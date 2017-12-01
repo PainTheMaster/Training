@@ -111,13 +111,13 @@ public class Element implements Cloneable{
 	
 	public Element clone() {
 		
-		Element temp = null;
+		Element temp = new Element();
 		
 		try {
 			temp = (Element) super.clone();
 		}
 		catch(Exception e) {
-			
+			e.printStackTrace();
 		}
 		
 		for(int i = 0; i<=numIsotope-1; i++) {
