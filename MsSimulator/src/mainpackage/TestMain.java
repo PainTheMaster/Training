@@ -15,7 +15,7 @@ public class TestMain {
 		
 		for(int i = 0; i <= element.length-1; i++) {
 			System.out.println(element[i].toString());
-			System.out.println();
+//
 		}
 	}
 

@@ -10,42 +10,24 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 	Element[] bufElem, ansElem;
 	int idxBufElem;
 	
-	int currentLine;
-//	StringBuilder[] bufStrBuild;
-//	boolean[] filled;
-	
-	
-	
 	public ElementInfoReader(String tableName, int delimiter) {
 		this.tabread = new TableReader(tableName, delimiter);
-
-		
-/*		bufStrBuild = new StringBuilder[NUMBER_OF_COL];
-		for(int i = 0; i <= NUMBER_OF_COL -1; i++)
-			bufStrBuild[i] = new StringBuilder();
-		
-		filled = new boolean[NUMBER_OF_COL]; */
 		
 		bufElem = new Element[NUMBER_BUF_ELEM];
-		idxBufElem = 0;
-		
-		currentLine = 0;
 	}
 	
 	
 	
 	public Element[] setElements() {
-		Element tempElem;
+		
 		int rtnUtilFunc;
 		
+		idxBufElem = 0;
 		do {
-			tempElem = new Element();
-			rtnUtilFunc = analBlock(tempElem);
+			bufElem[idxBufElem] = new Element();
+			rtnUtilFunc = analBlock(bufElem[idxBufElem]);
 			
-			if(tempElem.getSymbol() != null) {
-				bufElem[idxBufElem] = tempElem.clone();
-				idxBufElem++;
-			}
+			idxBufElem++;
 		}
 		while(rtnUtilFunc != END_OF_FILE );
 		//このwhileループを抜けた時点で、idxBufElemはデータが入っているところの次のインデックスを指していることに注意（そして、それは読み込んだ元素数に等しい）
@@ -71,7 +53,6 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 		int rtnUtilFunc;
 		int lineInBlock;
 		
-//		double[][] isotope = new double[MAX_NUM_ISOTOPE][2];
 		
 		String symbol;											//説明変数
 		double exactMass, atomicWeight, isotopeMass, abund;		//説明変数
@@ -93,6 +74,7 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 		
 		if(rtnUtilFunc == END_OF_FILE)
 			return END_OF_FILE;
+		
 		
 		lineInBlock = 0;
 		do{
@@ -135,48 +117,6 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 		
 		return rtnUtilFunc;
 	}
-	
-	
-	
-//このメソッドは廃止する。
-/*	private int skipBlankLine() {
-		
-		int idxCol;
-		int numElem;
-		
-//		boolean[] filled = new boolean[NUMBER_OF_COL];
-		boolean filledChecker = false;
-
-		
-		StringBuilder[] bufBufStrBuild = new StringBuilder[NUMBER_OF_COL];
-		for(int i = 0; i <= NUMBER_OF_COL -1; i++) {
-			bufBufStrBuild[i] = new StringBuilder();
-			bufBufStrBuild[i].setLength(0);
-		}
-		
-		
-		
-		do {
-			
-			numElem = tabread.getLineElemsStr(bufStrBuild, filled);
-			
-			for(idxCol = 0; idxCol <= NUMBER_OF_COL-1; idxCol++ )
-				filledChecker |= filled[idxCol];			
-		}
-		 while(filledChecker == false && numElem != END_OF_FILE);
-		
-		
-/		for(idxCol = 0; idxCol <= NUMBER_OF_COL-1; idxCol++) {
-			bufStrBuild[idxCol].setLength(0);
-			bufStrBuild[idxCol].append(bufBufStrBuild[idxCol]);
-		}
-		
-		return numElem;
-		
-	}*/
-	
-	
-	
 	
 }
 
