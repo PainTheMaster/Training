@@ -1,256 +1,253 @@
 package msPattern;
 
-import static miscservice.MathService.*;
-
 import chemspecies.Composition;
 import chemspecies.Element;
 import chemspecies.Isotope;
+import miscservice.*;
 
 
-public class MsPattern {
-	String formula;
-	Composition[] composition;
+public class MsPattern implements SiMsPatternCutOff {
+
+	private Composition[] composition;
 	
-	//private double exactmass;	廃止予定.このクラスは質量分析パターンに専念し、分子情報はChemspeciesで一括管理する。
-	//private double molweight;	廃止予定.このクラスは質量分析パターンに専念し、分子情報はChemspeciesで一括管理する。
-	private int numElement, numIsotopomer, idxLastIsotopomer, idxTempLastIsotopomer;
+
+	private int	idxLastIsotopomer, idxTempLastIsotopomer, idxLastSummaryIsotopomer; //どこまで（意味のある）データが充填されているか。これより後ろはゴミ
+	private int numElement;
 	
-	Isotope[] isotopeDouble, tempIsotopeDouble;
+	Isotope[] isotopomer, tempIsotopomer, summaryIsotopomer;
 	
 	
 	
 	public MsPattern(String formula, Element[] arrElement) {
-		this.formula = formula;
+
 		composition = Composition.allocElement(formula, arrElement);
 		numElement = composition.length;
 		
+		isotopomer = new Isotope[MAX_ISOTOPOMER];
+		tempIsotopomer = new Isotope[MAX_ISOTOPOMER];
 
+		for(int i = 0; i<=MAX_ISOTOPOMER-1; i++) {
+			isotopomer[i] = new Isotope();
+			tempIsotopomer[i] = new Isotope();
+		}
+		
+		msPeakBuildAccur();
+		summarize();
 	}
 	
 	
+	public MsPattern(Composition[] composition) {
+
+		this.composition = composition;
+		numElement = composition.length;
+		
+		isotopomer = new Isotope[MAX_ISOTOPOMER];
+		tempIsotopomer = new Isotope[MAX_ISOTOPOMER];
+
+		for(int i = 0; i<=MAX_ISOTOPOMER-1; i++) {
+			isotopomer[i] = new Isotope();
+			tempIsotopomer[i] = new Isotope();
+		}
+		
+		msPeakBuildAccur();
+		summarize();
+	}
+	
+	
+	
+	
+	
+	//マイナーピークのカットオフを行いながら、comopsotion配列を元にピーク構築を行う。
+	//結果はisotopmer配列に格納される。
 	public void msPeakBuildAccur() {
 		
-		numIsotopomer = setNumIsotopomerAccur();
-		/*test*/System.out.println("NumIsotopomer: "+numIsotopomer);
-		isotopeDouble = new Isotope[numIsotopomer];
-		tempIsotopeDouble = new Isotope[numIsotopomer];
-		for(int i = 0; i<=numIsotopomer-1; i++) {
-			isotopeDouble[i] = new Isotope();
-			tempIsotopeDouble[i] = new Isotope();
-		}
+		double sumAbundance;
 		
-		isotopeDouble[0].mass = 0.0;
-		isotopeDouble[0].abundance = 1.0;
+		//質量0が100%。つまり何もない状態からスタート。
+		isotopomer[0].mass = 0.0;
+		isotopomer[0].abundance = 1.0;
+		idxLastIsotopomer = 0;
 		
-		idxLastIsotopomer = idxTempLastIsotopomer = 0;
+		//バッファクリア
+		idxTempLastIsotopomer = -1;		
+		
 		
 		for(int i = 0; i <= numElement-1; i++) {
-			split(composition[i]);
-		}
-	}
-	
-	public void msPeakBuildInt() {
-	
-		numIsotopomer = setNumIsotopomerInt();
-		/*test*/System.out.println("NumIsotopomer: "+numIsotopomer);
-		isotopeDouble = new Isotope[numIsotopomer];
-		tempIsotopeDouble = new Isotope[numIsotopomer];
-		for(int i = 0; i<=numIsotopomer-1; i++) {
-			isotopeDouble[i] = new Isotope();
-			tempIsotopeDouble[i] = new Isotope();
+			
+			if(i <= numElement-1-1) {
+				split(composition[i], composition[i+1].getElem().getNumIsotope()/*次の*/);
+			}
+			else {
+				split(composition[i], NO_FOLLOWING_ELEMENT);
+			}
 		}
 		
-		isotopeDouble[0].mass = 0.0;
-		isotopeDouble[0].abundance = 1.0;
-		
-		idxLastIsotopomer = idxTempLastIsotopomer = 0;
-		
-		for(int i = 0; i <= numElement-1; i++) {
-			split(composition[i]);
-			summarize();
+		sumAbundance = 0.0;
+		for(int i = 0; i <= idxLastIsotopomer; i++) {
+			sumAbundance += isotopomer[i].abundance;
 		}
+		
+		for(int i = 0; i <= idxLastIsotopomer; i++) {
+			isotopomer[i].abundance /= sumAbundance;
+		}
+		
+		HeapSortMode.heapSortMode(isotopomer, 0, idxLastIsotopomer, "MASS", "AZ");
 		
 	}
 	
+
 	
 	
-	
-	
-	private void split(Composition elemComposition) {
+	//与えられたCompositionインスタンスに応じて、元素ごとにピークのスプリットを行う。
+	//結果はisotopmer配列に格納される。
+	private void split(Composition elemComposition, int numIsotopeFollowElem) {
+		
 		Element element;
 		int numAtom;
 		int idxAtom, idxIsotope, idxIsotopomer;
+		
+		int numMaxHeldPeak;
 		
 		double tempMass, tempAbundance;
 		
 		element = elemComposition.getElem();
 		numAtom = elemComposition.getNumAtom();
 		
-		
 		//バッファクリア
-		for(int i = 0; i <= numIsotopomer-1; i++) {
-			tempIsotopeDouble[i].abundance = 0.0;
-			tempIsotopeDouble[i].mass = 0.0;
-		}
-		idxTempLastIsotopomer = 0;
+		idxTempLastIsotopomer = -1;
 		
-		
-		//外側から
-			//原子
-			 //同位体
-			  //前ステップのアイソトポマー
-		//で回す
-		for(idxAtom = 1; idxAtom <= numAtom; idxAtom++) {
+		/*外側から
+			原子
+			　同位体
+			 　　前ステップのアイソトポマー
+		で回す。原子のインデックスを配列要素の指定等に使っているわけではないが、他との統一性を持たせるために0から(原子数-1)のインデックスで回す。*/
+		for(idxAtom = 0; idxAtom <= numAtom-1; idxAtom++) {
+			
 			for(idxIsotope = 0; idxIsotope <= element.getNumIsotope()-1; idxIsotope++) {
 				for(idxIsotopomer = 0; idxIsotopomer <= idxLastIsotopomer; idxIsotopomer++) {
 					
-					tempMass = isotopeDouble[idxIsotopomer].mass + element.getIsotope(idxIsotope).mass;
-					tempAbundance = isotopeDouble[idxIsotopomer].abundance * element.getIsotope(idxIsotope).abundance;
+					tempMass = isotopomer[idxIsotopomer].mass + element.getIsotope(idxIsotope).mass;
+					tempAbundance = isotopomer[idxIsotopomer].abundance * element.getIsotope(idxIsotope).abundance;
 					
 					appendIsotopomer(tempMass, tempAbundance);
 				}
 			}
 			
-			//次の原子付加に備えてバッファフリア
-			for(int i = 0; i <= idxTempLastIsotopomer; i++) {
-				isotopeDouble[i] = tempIsotopeDouble[i].clone();
-				tempIsotopeDouble[i].abundance = 0.0;
-				tempIsotopeDouble[i].mass = 0.0;
+
+			HeapSortMode.heapSortMode(tempIsotopomer, 0, idxTempLastIsotopomer, "ABUND", "ZA");
+			
+			
+			//カットオフ。これを実際に行う必要があるのは、idxTempLatIsomerが(保持すべきピーク数-1)を超えている時のみ。
+			if(idxAtom <= (numAtom-1)-1) {
+				if(idxTempLastIsotopomer > (numMaxHeldPeak = MAX_ISOTOPOMER / element.getNumIsotope()) -1)
+					idxTempLastIsotopomer = numMaxHeldPeak-1;
+			}
+			else {
+				if(idxTempLastIsotopomer > (numMaxHeldPeak = MAX_ISOTOPOMER / numIsotopeFollowElem) -1)
+					idxTempLastIsotopomer = numMaxHeldPeak-1;
 			}
 			
+			/*このメソッドではカットオフは実施しても規格化はしないこととする*/
+			
+			//今回の原子を付加した結果をアイソトポマー配列にストア。配列のインデックスも移管して、バッファクリア。
+			for(int i = 0; i <= idxTempLastIsotopomer; i++) {
+				isotopomer[i] = tempIsotopomer[i].clone();
+			}			
 			idxLastIsotopomer = idxTempLastIsotopomer;
-			idxTempLastIsotopomer = 0;
+			idxTempLastIsotopomer = -1; //0番以降はゴミ。つまりバッファクリア状態。
 		}		
 	}
 		
 	
-	
+	//tempIsotopomerにmass, abundanceを追加する。
 	private void appendIsotopomer(double mass, double abundance) {
 		
 		int idx;
-		idx = 0;
 		
-		while(idx <= idxTempLastIsotopomer
-				&& tempIsotopeDouble[idx].mass != mass
-				&& tempIsotopeDouble[idx].mass != 0.0
-				&& idx < numIsotopomer - 1) {
+		idx = 0;
+		while(idx <= idxTempLastIsotopomer	&& tempIsotopomer[idx].mass != mass) {
 			idx++;
 		}
 		
-		if(tempIsotopeDouble[idx].mass == 0.0) {
-			tempIsotopeDouble[idx].mass = mass;
-			tempIsotopeDouble[idx].abundance = abundance; 
+		if(idx <= idxTempLastIsotopomer) {
+			tempIsotopomer[idx].abundance += abundance;
 		}
 		else {
-			tempIsotopeDouble[idx].abundance += abundance; 
-		}
-		
-		if(idx > idxTempLastIsotopomer)
+			tempIsotopomer[idx].mass = mass;
+			tempIsotopomer[idx].abundance = abundance; 
 			idxTempLastIsotopomer = idx;
+		}
 	}
 	
 	
-	
-	private int setNumIsotopomerAccur() {
-		int ans;
-		int numAtom, numIsotope;
+	public void summarize() {
 		
-		ans = 1;
-		for(int i = 0; i<= numElement-1; i++) {
-			numAtom = composition[i].getNumAtom();
-			numIsotope = composition[i].getElem().getNumIsotope();
+		int idxBuf;
+		
+		HeapSortMode.heapSortMode(isotopomer, 0, idxLastIsotopomer, "ABUND", "ZA");
+		
+		//バッファクリア
+		idxTempLastIsotopomer = -1;
+		
+		for(int i = 0; i<=idxLastIsotopomer; i++) {
 			
-			ans *= factorial(numAtom+numIsotope-1) / (factorial(numAtom) * factorial(numIsotope-1));
-		}
-		
-		return ans;
-	}
-	
-	
-	//整数化msを求めるプロセスにおいて最悪のケースを想定して必要なバッファサイズを計算する。
-	private int setNumIsotopomerInt() {
-		int ans;
-		int idxElem;
-		
-		int idxWide, idxNarrow;
-		int rangeWide, rangeNarrow;
-		
-
-		idxWide = 0;
-		idxNarrow = 0;
-		rangeNarrow = rangeWide = composition[0].getElem().getRangeIsotopes();
-		
-		idxElem = 0;
-		do {
-			
-			if(composition[idxElem].getElem().getRangeIsotopes() > rangeWide) {
-				rangeWide = composition[idxElem].getElem().getRangeIsotopes();
-				idxWide = idxElem;
+			idxBuf = 0;
+			while( !(tempIsotopomer[idxBuf].mass - 0.5 <= isotopomer[i].mass && isotopomer[i].mass < tempIsotopomer[idxBuf].mass + 0.5)
+					&& idxBuf <= idxTempLastIsotopomer) {
+				idxBuf++;
 			}
 			
-			if(composition[idxElem].getElem().getRangeIsotopes() < rangeNarrow) {
-				rangeWide = composition[idxElem].getElem().getRangeIsotopes();
-				idxNarrow = idxElem;
+			//tempIsotopoerの中に近似したm/zのエントリーがいなかった場合。新しくエントリーを追加。
+			if(idxBuf > idxTempLastIsotopomer) {
+				tempIsotopomer[idxBuf].mass = isotopomer[i].mass;
+				tempIsotopomer[idxBuf].abundance = isotopomer[i].abundance;
+				idxTempLastIsotopomer = idxBuf;
 			}
-			
-			idxElem++;
-			
-		}
-		while(idxElem <= numElement-1);
-		
-		ans = 1;
-		for(int i=0; i<= composition.length-1; i++) {
-			if(i != idxNarrow) {
-				ans += (composition[i].getElem().getRangeIsotopes()) * composition[i].getNumAtom();
-			}
+			//近似したm/zのエントリーがtempの中に有った場合は統合する。
 			else {
-				ans += (composition[i].getElem().getRangeIsotopes()) * (composition[i].getNumAtom() - 1);
-			}	
+				tempIsotopomer[idxBuf].abundance += isotopomer[i].abundance;
+			}
 		}
 		
-		ans *= composition[idxWide].getElem().getRangeIsotopes()+1;
+		idxLastSummaryIsotopomer = idxTempLastIsotopomer;
+		
+		summaryIsotopomer = new Isotope[idxLastSummaryIsotopomer + 1];
+		for(int i = 0; i <= idxLastSummaryIsotopomer; i++) {
+			summaryIsotopomer[i] = tempIsotopomer[i].clone();
+		}
+		
+	}
 
-		return ans;
+	
+	
+	public Isotope[] getMsPattern() {
+		//並びを戻しておく
+		HeapSortMode.heapSortMode(isotopomer, 0, idxLastIsotopomer, "MASS", "AZ");
 		
+		return isotopomer;
 	}
 	
 	
-	private void summarize() {
-		double intmass;
-		int idxSummarize;
-		
-		for(int i = 0; i <= numIsotopomer-1; i++) {
-			tempIsotopeDouble[i].abundance = 0.0;
-			tempIsotopeDouble[i].mass = 0.0;
-		}
-		idxTempLastIsotopomer = 0;
-		
-		for(idxSummarize = 0; idxSummarize <= idxLastIsotopomer; idxSummarize++ ) {
-			intmass = Math.rint(isotopeDouble[idxSummarize].mass);
-			appendIsotopomer(intmass, isotopeDouble[idxSummarize].abundance);
-			
-			isotopeDouble[idxSummarize].mass = 0.0;
-			isotopeDouble[idxSummarize].abundance = 0.0;
-		}
-		
-		for(int i = 0; i <= idxTempLastIsotopomer; i++) {
-			isotopeDouble[i] = tempIsotopeDouble[i].clone();
-			tempIsotopeDouble[i].abundance = 0.0;
-			tempIsotopeDouble[i].mass = 0.0;
-		}
-		idxLastIsotopomer = idxTempLastIsotopomer;
-		idxTempLastIsotopomer = 0;
-		
+	public Isotope[] getSummaryMsPattern() {
+		//並びを戻しておく
+		HeapSortMode.heapSortMode(summaryIsotopomer, 0, idxLastSummaryIsotopomer, "MASS", "AZ");
+		return summaryIsotopomer;
 	}
-	
 	
 	public void dispMsPattern() {
 		int i;
 		for(i = 0; i <= idxLastIsotopomer; i++) {
-			System.out.println("Mass:" + isotopeDouble[i].mass+", Abund:"+ isotopeDouble[i].abundance);
+			System.out.println("Mass:" + isotopomer[i].mass+", Abund:"+ isotopomer[i].abundance);
 		}
 	}
 	
+}
+
+
+interface SiMsPatternCutOff {
+	public static final int MAX_ISOTOPOMER = 100;
+	
+	public static final int NO_FOLLOWING_ELEMENT = 1; //これは1であることに意味がある。続く元素のアイソトープ数として１が与えられると（次のアイソトープ数==1）x(今のピーク数)　<= MaxIsotopで打ち切りが起こらない。
 }
 
 
