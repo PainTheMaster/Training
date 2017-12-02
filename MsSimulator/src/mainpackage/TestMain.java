@@ -1,5 +1,6 @@
 package mainpackage;
 
+import chemspecies.Element;
 import msPattern.*;
 import readers.*;
 

@@ -1,4 +1,4 @@
-package msPattern;
+package chemspecies;
 
 import miscservice.*;
 

@@ -1,4 +1,4 @@
-package msPattern;
+package chemspecies;
 
 public class Composition {
 	

@@ -2,13 +2,17 @@ package msPattern;
 
 import static miscservice.MathService.*;
 
+import chemspecies.Composition;
+import chemspecies.Element;
+import chemspecies.Isotope;
+
 
 public class MsPattern {
 	String formula;
 	Composition[] composition;
 	
-	private double exactmass;
-	private double molweight;
+	//private double exactmass;	廃止予定.このクラスは質量分析パターンに専念し、分子情報はChemspeciesで一括管理する。
+	//private double molweight;	廃止予定.このクラスは質量分析パターンに専念し、分子情報はChemspeciesで一括管理する。
 	private int numElement, numIsotopomer, idxLastIsotopomer, idxTempLastIsotopomer;
 	
 	Isotope[] isotopeDouble, tempIsotopeDouble;

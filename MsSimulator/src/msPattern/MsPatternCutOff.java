@@ -1,14 +1,16 @@
 package msPattern;
 
+import chemspecies.Composition;
+import chemspecies.Element;
+import chemspecies.Isotope;
 import miscservice.*;
 
 
 public class MsPatternCutOff implements SiMsPatternCutOff {
-	String formula;
-	Composition[] composition;
+
+	private Composition[] composition;
 	
-	private double exactmass;
-	private double molweight;
+
 	private int	idxLastIsotopomer, idxTempLastIsotopomer, idxSummaryIsotopomer; //どこまで（意味のある）データが充填されているか。これより後ろはゴミ
 	private int numElement;
 	
@@ -17,19 +19,37 @@ public class MsPatternCutOff implements SiMsPatternCutOff {
 	
 	
 	public MsPatternCutOff(String formula, Element[] arrElement) {
-		this.formula = formula;
+
 		composition = Composition.allocElement(formula, arrElement);
 		numElement = composition.length;
 		
 		isotopomer = new Isotope[MAX_ISOTOPOMER];
 		tempIsotopomer = new Isotope[MAX_ISOTOPOMER];
-		summaryIsotopomer = new Isotope[MAX_ISOTOPOMER];
+
 		for(int i = 0; i<=MAX_ISOTOPOMER-1; i++) {
 			isotopomer[i] = new Isotope();
 			tempIsotopomer[i] = new Isotope();
-			summaryIsotopomer[i] = new Isotope();
 		}
 	}
+	
+	
+	public MsPatternCutOff(Composition[] composition) {
+
+		this.composition = composition;
+		numElement = composition.length;
+		
+		isotopomer = new Isotope[MAX_ISOTOPOMER];
+		tempIsotopomer = new Isotope[MAX_ISOTOPOMER];
+
+		for(int i = 0; i<=MAX_ISOTOPOMER-1; i++) {
+			isotopomer[i] = new Isotope();
+			tempIsotopomer[i] = new Isotope();
+		}
+	}
+	
+	
+	
+	
 	
 	
 	public void msPeakBuildAccur() {
@@ -158,7 +178,7 @@ public class MsPatternCutOff implements SiMsPatternCutOff {
 	}
 	
 	
-	private void summarize() {
+	public void summarize() {
 		
 		int idxBuf;
 		
@@ -170,54 +190,32 @@ public class MsPatternCutOff implements SiMsPatternCutOff {
 		for(int i = 0; i<=idxLastIsotopomer; i++) {
 			
 			idxBuf = 0;
-			while( !(tempIsotopomer[idxBuf].mass - 0.5 <= isotopomer[i].mass || isotopomer[i].mass < tempIsotopomer[idxBuf].mass + 0.5)
+			while( !(tempIsotopomer[idxBuf].mass - 0.5 <= isotopomer[i].mass && isotopomer[i].mass < tempIsotopomer[idxBuf].mass + 0.5)
 					&& idxBuf <= idxTempLastIsotopomer) {
 				idxBuf++;
 			}
 			
-			
+			//tempIsotopoerの中に近似したm/zのエントリーがいなかった場合。新しくエントリーを追加。
 			if(idxBuf > idxTempLastIsotopomer) {
 				tempIsotopomer[idxBuf].mass = isotopomer[i].mass;
 				tempIsotopomer[idxBuf].abundance = isotopomer[i].abundance;
 				idxTempLastIsotopomer = idxBuf;
 			}
+			//近似したm/zのエントリーがtempの中に有った場合は統合する。
 			else {
 				tempIsotopomer[idxBuf].abundance += isotopomer[i].abundance;
 			}
 		}
 		
+		idxSummaryIsotopomer = idxTempLastIsotopomer;
+		
+		summaryIsotopomer = new Isotope[idxSummaryIsotopomer + 1];
+		for(int i = 0; i <= idxSummaryIsotopomer; i++) {
+			summaryIsotopomer[i] = tempIsotopomer[i].clone();
+		}
+		
 	}
 
-	
-	
-	
-/*	private void summarize() {
-		double intmass;
-		int idxSummarize;
-		
-		for(int i = 0; i <= numIsotopomer-1; i++) {
-			tempIsotopeDouble[i].abundance = 0.0;
-			tempIsotopeDouble[i].mass = 0.0;
-		}
-		idxTempLastIsotopomer = 0;
-		
-		for(idxSummarize = 0; idxSummarize <= idxLastIsotopomer; idxSummarize++ ) {
-			intmass = Math.rint(isotopeDouble[idxSummarize].mass);
-			appendIsotopomer(intmass, isotopeDouble[idxSummarize].abundance);
-			
-			isotopeDouble[idxSummarize].mass = 0.0;
-			isotopeDouble[idxSummarize].abundance = 0.0;
-		}
-		
-		for(int i = 0; i <= idxTempLastIsotopomer; i++) {
-			isotopeDouble[i] = tempIsotopeDouble[i].clone();
-			tempIsotopeDouble[i].abundance = 0.0;
-			tempIsotopeDouble[i].mass = 0.0;
-		}
-		idxLastIsotopomer = idxTempLastIsotopomer;
-		idxTempLastIsotopomer = 0;
-		
-	}*/
 	
 	
 	public void dispMsPattern() {
