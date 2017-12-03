@@ -1,8 +1,8 @@
 package chemspecies;
 
-public class Composition {
+public class Composition implements Cloneable {
 	
-	
+//	private String name = null;
  	private Element constituentElement;
 	private int numAtom;
 	
@@ -44,12 +44,37 @@ public class Composition {
 	}
 	
 	
-	public Element getElem() {
+	public void setElement(Element constituentElement) {
+		this.constituentElement = constituentElement;
+	}
+	
+	public void setNumAtom(int numAtom) {
+		this.numAtom = numAtom;
+	}
+	
+	
+	public Element getElement() {
 		return constituentElement;
 	}
 	
 	public int getNumAtom() {
 		return numAtom;
+	}
+	
+	@Override
+	public Composition clone() {
+		Composition temp = null;
+		
+		try {
+			temp = (Composition) super.clone();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		temp.constituentElement = this.constituentElement;
+		
+		return temp;
 	}
 	
 	
@@ -152,8 +177,7 @@ class MolecularFormula implements SiCompFormula{
 			ans = NUMBER;
 		
 		return ans;
-	}
-	
+	}	
 	
 }
 

@@ -75,7 +75,7 @@ public class MsPattern implements SiMsPatternCutOff {
 		for(int i = 0; i <= numElement-1; i++) {
 			
 			if(i <= numElement-1-1) {
-				split(composition[i], composition[i+1].getElem().getNumIsotope()/*次の*/);
+				split(composition[i], composition[i+1].getElement().getNumIsotope()/*次の*/);
 			}
 			else {
 				split(composition[i], NO_FOLLOWING_ELEMENT);
@@ -110,7 +110,7 @@ public class MsPattern implements SiMsPatternCutOff {
 		
 		double tempMass, tempAbundance;
 		
-		element = elemComposition.getElem();
+		element = elemComposition.getElement();
 		numAtom = elemComposition.getNumAtom();
 		
 		//バッファクリア
