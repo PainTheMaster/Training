@@ -19,7 +19,11 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 	}
 	
 	
-	public void setBuildingBlocks(ArrayList<BuildingBlock> fullProtected, ArrayList<BuildingBlock> deProtected, ArrayList<BuildingBlock> protectiveGroup) {
+	public void setBuildingBlocks(ArrayList<BuildingBlock> fullProtected,
+			ArrayList<BuildingBlock> deProtected, 
+			ArrayList<BuildingBlock> fullProtFirstMonomer,
+			ArrayList<BuildingBlock> deProtFirstMonomer,
+			ArrayList<BuildingBlock> protectiveGroup) {
 		int rtnUtilFunc;
 		BuildingBlock tempBuilingBlock = new BuildingBlock();
 		BuildingBlock[] arrTempFullProt, arrTempDeProt, arrTempProtGroup;
@@ -61,10 +65,7 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 		for(int i = 0; i <= idxArrTempProtGroup; i++)
 			protectiveGroup.add(arrTempProtGroup[i].clone());
 		
-		
-	/*	fullProtected = arrAnsFullProt;
-		deProtected = arrAnsDeProt;
-		protectiveGroup = arrAnsProtGroup; ArrayList‰»‚É”º‚¢”pŽ~—\’è*/
+	
 	}
 	
 	
@@ -128,6 +129,10 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 					}
 					else if(bufStrBuild[1].toString().compareTo(STR_DEPROTECTED) == 0)
 						buildingblock.setKind(MONOMER_DEPROT);
+					else if(bufStrBuild[1].toString().compareTo(STR_FULLPROTECTED_1ST) == 0)
+						buildingblock.setKind(FULLPROT_1ST);
+					else if(bufStrBuild[1].toString().compareTo(STR_DEPROTECTED_1ST) == 0)
+						buildingblock.setKind(DEPROT_1ST);
 					else if(bufStrBuild[1].toString().compareTo(STR_PROTECTING_G) == 0)
 						buildingblock.setKind(PROTGR);
 				}
@@ -208,7 +213,9 @@ interface SiBuildingBlockReader{
 	
 	public static final int MONOMER_FULLPROT=0;
 	public static final int MONOMER_DEPROT=1;
-	public static final int PROTGR=2;
+	public static final int FULLPROT_1ST=2;
+	public static final int DEPROT_1ST=3;
+	public static final int PROTGR=4;
 	
 	
 	
@@ -216,6 +223,8 @@ interface SiBuildingBlockReader{
 	public static final String CLASS = "Class";
 		public static final String STR_FULLPROTECTED = "fullprotected";
 		public static final String STR_DEPROTECTED = "deprotected";
+		public static final String STR_FULLPROTECTED_1ST = "fullprotected 1st nucleoside";
+		public static final String STR_DEPROTECTED_1ST= "deprotected 1st nucleoside";
 		public static final String STR_PROTECTING_G = "protecting group";
 	public static final String COMPOSITION = "<Composition>";
 	public static final int PAREN_L = '[';

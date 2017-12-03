@@ -17,18 +17,16 @@ public class TestMain {
 		
 		BuildingBlockReader bbr = new BuildingBlockReader("D:\\BBtest.csv", ',', element); 
 		
-		
-//		BuildingBlock[] bbfull=null, bbdepro=null, bbprotgr=null;
-		
-		
-		ArrayList<BuildingBlock> bbfull, bbdepro, bbprotgr;
+			
+		ArrayList<BuildingBlock> bbfull, bbdepro, firstfull, firstdepro, bbprotgr;
 		
 		bbfull = new ArrayList<BuildingBlock>();
 		bbdepro = new ArrayList<BuildingBlock>();
+		firstfull = new ArrayList<BuildingBlock>();
+		firstdepro  = new ArrayList<BuildingBlock>();
 		bbprotgr  = new ArrayList<BuildingBlock>();
-
 		
-		bbr.setBuildingBlocks(bbfull, bbdepro, bbprotgr);
+		bbr.setBuildingBlocks(bbfull, bbdepro, firstfull, firstdepro, bbprotgr);
 		
 		System.out.println("size"+bbfull.size()+", "+bbdepro.size()+", "+bbprotgr.size());
 		

@@ -1,7 +1,6 @@
 package readers;
 
 import chemspecies.Element;
-import msPattern.*;
 
 
 public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
