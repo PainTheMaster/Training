@@ -19,8 +19,9 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 	}
 	
 	
-	public void setBuildingBlocks(ArrayList<BuildingBlock> fullProtected,
-			ArrayList<BuildingBlock> deProtected, 
+	public void setBuildingBlocks(
+			ArrayList<BuildingBlock> fullProtectedMonomer,
+			ArrayList<BuildingBlock> deProtectedMonomer, 
 			ArrayList<BuildingBlock> fullProtFirstMonomer,
 			ArrayList<BuildingBlock> deProtFirstMonomer,
 			ArrayList<BuildingBlock> protectiveGroup) {
@@ -57,10 +58,10 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 		while(rtnUtilFunc != END_OF_FILE);
 		
 		for(int i = 0; i <= idxArrTempFullProt; i++)
-			fullProtected.add(arrTempFullProt[i].clone());
+			fullProtectedMonomer.add(arrTempFullProt[i].clone());
 		
 		for(int i = 0; i <= idxArrTempDeProt; i++)
-			deProtected.add(arrTempDeProt[i].clone());
+			deProtectedMonomer.add(arrTempDeProt[i].clone());
 		
 		for(int i = 0; i <= idxArrTempProtGroup; i++)
 			protectiveGroup.add(arrTempProtGroup[i].clone());
