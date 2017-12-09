@@ -24,7 +24,7 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 			ArrayList<BuildingBlock> deProtectedMonomer, 
 			ArrayList<BuildingBlock> fullProtFirstMonomer,
 			ArrayList<BuildingBlock> deProtFirstMonomer,
-			ArrayList<BuildingBlock> protectiveGroup) {
+			ArrayList<BuildingBlock> miscGroup) {
 		int rtnUtilFunc;
 		BuildingBlock tempBuilingBlock = new BuildingBlock();
 		BuildingBlock[] arrTempFullProt, arrTempDeProt, arrTempProtGroup;
@@ -50,7 +50,7 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 				idxArrTempDeProt++;
 				arrTempDeProt[idxArrTempDeProt] = tempBuilingBlock.clone();
 			}
-			else if(tempBuilingBlock.getKind() == PROTGR) {
+			else if(tempBuilingBlock.getKind() == MISCGR) {
 				idxArrTempProtGroup++;
 				arrTempProtGroup[idxArrTempProtGroup] = tempBuilingBlock.clone();
 			}
@@ -64,7 +64,7 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 			deProtectedMonomer.add(arrTempDeProt[i].clone());
 		
 		for(int i = 0; i <= idxArrTempProtGroup; i++)
-			protectiveGroup.add(arrTempProtGroup[i].clone());
+			miscGroup.add(arrTempProtGroup[i].clone());
 		
 	
 	}
@@ -134,8 +134,11 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 						buildingblock.setKind(FULLPROT_1ST);
 					else if(bufStrBuild[1].toString().compareTo(STR_DEPROTECTED_1ST) == 0)
 						buildingblock.setKind(DEPROT_1ST);
-					else if(bufStrBuild[1].toString().compareTo(STR_PROTECTING_G) == 0)
-						buildingblock.setKind(PROTGR);
+					else if(bufStrBuild[1].toString().compareTo(STR_MISC_G) == 0)
+						buildingblock.setKind(MISCGR);
+				}
+				else if(bufStrBuild[0].toString().compareTo(LINK_DEPROOTECTED) == 0){
+					buildingblock.setDeprotectedForm(bufStrBuild[1].toString());;
 				}
 				else if(bufStrBuild[0].toString().compareTo(COMPOSITION) == 0) {
 					rtnUtilFunc = analComposition(bufListComposition);
@@ -216,7 +219,7 @@ interface SiBuildingBlockReader{
 	public static final int MONOMER_DEPROT=1;
 	public static final int FULLPROT_1ST=2;
 	public static final int DEPROT_1ST=3;
-	public static final int PROTGR=4;
+	public static final int MISCGR=4;
 	
 	
 	
@@ -226,7 +229,8 @@ interface SiBuildingBlockReader{
 		public static final String STR_DEPROTECTED = "deprotected";
 		public static final String STR_FULLPROTECTED_1ST = "fullprotected 1st nucleoside";
 		public static final String STR_DEPROTECTED_1ST= "deprotected 1st nucleoside";
-		public static final String STR_PROTECTING_G = "protecting group";
+		public static final String STR_MISC_G = "miscellaneous group";
+	public static final String LINK_DEPROOTECTED ="Deprotected to";
 	public static final String COMPOSITION = "<Composition>";
 	public static final int PAREN_L = '[';
 	public static final int PAREN_R = ']';	

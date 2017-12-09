@@ -1,26 +1,24 @@
 import static java.lang.System.out;
+import java.util.*;
 
 
 public class MainClass{
 	
 	public static void main(String args[]) {
 
-		StringBuffer sb;
+		String str = "gewrhoid 234ere fjhaiser iaj  3232  adf";
+		String[] arrStr;
 		
-		sb = new StringBuffer("test sb");
-		out.println(sb);
+		arrStr = str.split(" ");
 		
-		testfunc(sb);
+		int count = arrStr.length;
+		for(int i = 0; i <= count-1; i++) {
+			out.println("Token "+i+": "+arrStr[i]);
+		}
 		
-		out.println(sb);
-		//this is a comment for test.
 	}
 	
-	
-	private static void testfunc(StringBuffer strbuf) {
-		strbuf.append(" appended by testfunc");
-	}
-	
+
 }
 
 

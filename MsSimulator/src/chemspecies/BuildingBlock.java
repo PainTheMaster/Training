@@ -7,6 +7,7 @@ public class BuildingBlock implements Cloneable{
 	private String name;
 	private Composition[] composition;
 	private int kind;
+	private String deprotectedForm;
 
 	
 	
@@ -45,7 +46,21 @@ public class BuildingBlock implements Cloneable{
 		this.kind = kind; 
 	}
 	
+	public void setDeprotectedForm(String deprotectedForm) {
+		this.deprotectedForm = deprotectedForm;
+	}
+	
 
+	
+	public Composition[] getComposition() {
+		return composition;
+	}
+
+	
+	
+	public int getKind() {
+		return kind; 
+	}
 	
 	
 	public String getName() {
@@ -53,8 +68,8 @@ public class BuildingBlock implements Cloneable{
 	}
 	
 	
-	public int getKind() {
-		return kind; 
+	public String getDeprotectedForm() {
+		return deprotectedForm;
 	}
 	
 	

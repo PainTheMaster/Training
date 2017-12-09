@@ -41,8 +41,13 @@ public class Molecule {
 		accurMsPattern = msPattern.getMsPattern();
 		summaryMsPattern = msPattern.getSummaryMsPattern();
 		msPattern = null;
-		
-		
+	}
+	
+	
+	public Molecule() {
+
+		numComposingElements = 0;
+		setMolWeight();
 	}
 	
 	
@@ -62,7 +67,6 @@ public class Molecule {
 		int maxLengthBuf, thatNumCompElem;
 		int idxLastBufComp, idxMatchCheck;
 		Composition[] bufComposition, poseComposition;
-//		Molecule ans;
 		
 		thatNumCompElem = that.composition.length;
 		maxLengthBuf =  numComposingElements + thatNumCompElem;
@@ -118,7 +122,6 @@ public class Molecule {
 		int maxLengthBuf, thatNumCompElem;
 		int idxLastBufComp, idxMatchCheck;
 		Composition[] bufComposition, poseComposition;
-//		Molecule ans;
 		
 		thatNumCompElem = that.length;
 		maxLengthBuf =  numComposingElements + thatNumCompElem;
