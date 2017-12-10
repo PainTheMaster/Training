@@ -4,7 +4,7 @@ import msPattern.*;
 
 
 public class Molecule {
-	
+	private String name;
 	private Composition[] composition;
 	private int numComposingElements;
 	
@@ -47,7 +47,8 @@ public class Molecule {
 	public Molecule() {
 
 		numComposingElements = 0;
-		setMolWeight();
+		molWeight = 0.0;
+		exactMass = 0.0;
 	}
 	
 	
@@ -140,31 +141,31 @@ public class Molecule {
 			
 			idxMatchCheck = 0;
 						
-			while( bufComposition[idxMatchCheck].getElement().getAtomicNo() 
-					!= that[i].getElement().getAtomicNo()
-					&& idxMatchCheck <= idxLastBufComp) {
+			while( idxMatchCheck <= idxLastBufComp
+					&& bufComposition[idxMatchCheck].getElement().getAtomicNo() != that[i].getElement().getAtomicNo() )
+			{
 				
 				idxMatchCheck++;
 			}
 			
 			
 			if(idxMatchCheck > idxLastBufComp) {
-				idxLastBufComp = idxMatchCheck;
+				idxLastBufComp++;
 				
 				bufComposition[idxLastBufComp] = new Composition();
 				bufComposition[idxLastBufComp].setElement(that[i].getElement());
 				bufComposition[idxLastBufComp].setNumAtom(that[i].getNumAtom());
 			}
 			else {
-				int sumAtomNo = bufComposition[idxLastBufComp].getNumAtom() + that[i].getNumAtom();
-				bufComposition[idxLastBufComp].setNumAtom(sumAtomNo);
+				int sumAtomNo = bufComposition[idxMatchCheck].getNumAtom() + that[i].getNumAtom();
+				bufComposition[idxMatchCheck].setNumAtom(sumAtomNo);
 			}
 		}
 			
 		
 		poseComposition = new Composition[idxLastBufComp+1];
 		for(int i = 0; i <= idxLastBufComp; i++) {
-			poseComposition[i] = bufComposition[i];
+			poseComposition[i] = bufComposition[i].clone();
 		}
 		
 		
@@ -174,7 +175,20 @@ public class Molecule {
 	
 	
 	
+	public void setName(String name) {
+		this.name = name;
+	}
 	
+	
+	public String getName() {
+		
+		if (name == null) {
+			return "";
+		}
+		else {
+			return name;
+		}
+	}
 	
 	
 	public Composition[] getComposition() {
@@ -195,6 +209,28 @@ public class Molecule {
 	
 	public Isotope[] getSummaryMsPattern() {
 		return summaryMsPattern;
+	}
+	
+	
+	@Override
+	public String toString() {
+		
+		StringBuilder tempSb = new StringBuilder();
+		
+		if(name != null) {
+			tempSb.append(name+"\n");
+		}
+		
+		for(int i = 0; i <= numComposingElements-1; i++) {
+			tempSb.append(composition[i].toString());
+		}
+		
+		tempSb.append("\n");
+		
+		tempSb.append("EM="+exactMass+", MW="+molWeight+"\n");
+		
+		return tempSb.toString();
+		
 	}
 	
 	

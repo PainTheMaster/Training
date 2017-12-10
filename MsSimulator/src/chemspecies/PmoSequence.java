@@ -13,7 +13,7 @@ public class PmoSequence implements SiPmoSequence {
 
 	
 	
-	Molecule[] fullProtTrtOn, fullProtTrtOff, deProtTrtOn, deProtTrtOff;
+	public Molecule[] fullProtTrtOn, fullProtTrtOff, deProtTrtOn, deProtTrtOff;
 	
 	ArrayList<BuildingBlock> fullProtectedMonomer,
 							deProtectedMonomer,
@@ -38,8 +38,10 @@ public class PmoSequence implements SiPmoSequence {
 		this.miscGroup = miscGroup;
 		
 		
-		strSeqComponents = sequenceStr.split(delimiter);
-		seqCompCount = strSeqComponents.length;		
+		strSeqComponents = sequenceStr.split(DELIMITER);
+		seqCompCount = strSeqComponents.length;	
+		
+		setSequence();
 	}
 	
 	
@@ -113,14 +115,22 @@ public class PmoSequence implements SiPmoSequence {
 				fullProtTrtOn[idxArrMolecule+1] = fullProtTrtOff[idxArrMolecule].add(fullProtFirstMonomer.get(idxMatch).getComposition());
 				fullProtTrtOff[idxArrMolecule+1] = fullProtTrtOff[idxArrMolecule].add(fullProtFirstMonomer.get(idxMatch).getComposition());
 				
+				fullProtTrtOn[idxArrMolecule+1].setName(fullProtTrtOn[idxArrMolecule].getName() + strSeqComponents[idxSeqComp]);
+				fullProtTrtOff[idxArrMolecule+1].setName(fullProtTrtOff[idxArrMolecule].getName() + strSeqComponents[idxSeqComp]);
+				
+				
 				int tempIdxDeprotMatch = match(fullProtFirstMonomer.get(idxMatch).getDeprotectedForm(), deProtFirstMonomer);
 				deProtTrtOn[idxArrMolecule+1] = deProtTrtOn[idxArrMolecule].add(deProtFirstMonomer.get(tempIdxDeprotMatch).getComposition());
 				deProtTrtOff[idxArrMolecule+1] = deProtTrtOn[idxArrMolecule].add(deProtectedMonomer.get(tempIdxDeprotMatch).getComposition());
 				
+				deProtTrtOn[idxArrMolecule+1].setName(deProtTrtOn[idxArrMolecule].getName()+fullProtFirstMonomer.get(idxMatch).getDeprotectedForm() );
+				deProtTrtOff[idxArrMolecule+1].setName(deProtTrtOff[idxArrMolecule].getName()+fullProtFirstMonomer.get(idxMatch).getDeprotectedForm() );
+				
+				
 				idxArrMolecule++;
 			}
 		}
-		while(idxMatch == NO_MATCH);
+		while(idxMatch == NO_MATCH && idxSeqComp <= seqCompCount-2);
 		//2番目以降のヌクレオシド。
 		do {
 			idxSeqComp++;
@@ -128,17 +138,24 @@ public class PmoSequence implements SiPmoSequence {
 			idxMatch = match(strSeqComponents[idxSeqComp], fullProtectedMonomer);
 			
 			if(idxMatch != NO_MATCH);{
-				fullProtTrtOn[idxArrMolecule+1] = fullProtTrtOff[idxArrMolecule].add(fullProtectedMonomer.get(idxMatch).getComposition());
+				fullProtTrtOn[idxArrMolecule+1] = fullProtTrtOn[idxArrMolecule].add(fullProtectedMonomer.get(idxMatch).getComposition());
 				fullProtTrtOff[idxArrMolecule+1] = fullProtTrtOff[idxArrMolecule].add(fullProtectedMonomer.get(idxMatch).getComposition());
 				
-				int tempIdxDeprotMatch = match(fullProtFirstMonomer.get(idxMatch).getDeprotectedForm(), deProtectedMonomer);
-				deProtTrtOn[idxArrMolecule+1] = deProtTrtOn[idxArrMolecule].add(deProtFirstMonomer.get(tempIdxDeprotMatch).getComposition());
-				deProtTrtOff[idxArrMolecule+1] = deProtTrtOn[idxArrMolecule].add(deProtectedMonomer.get(tempIdxDeprotMatch).getComposition());
+				fullProtTrtOn[idxArrMolecule+1].setName(fullProtTrtOn[idxArrMolecule].getName() + strSeqComponents[idxSeqComp]);
+				fullProtTrtOff[idxArrMolecule+1].setName(fullProtTrtOff[idxArrMolecule].getName() + strSeqComponents[idxSeqComp]);
+				
+				
+				int tempIdxDeprotMatch = match(fullProtectedMonomer.get(idxMatch).getDeprotectedForm(), deProtectedMonomer);
+				deProtTrtOn[idxArrMolecule+1] = deProtTrtOn[idxArrMolecule].add(deProtectedMonomer.get(tempIdxDeprotMatch).getComposition());
+				deProtTrtOff[idxArrMolecule+1] = deProtTrtOff[idxArrMolecule].add(deProtectedMonomer.get(tempIdxDeprotMatch).getComposition());
+				
+				deProtTrtOn[idxArrMolecule+1].setName(deProtTrtOn[idxArrMolecule].getName()+fullProtectedMonomer.get(idxMatch).getDeprotectedForm() );
+				deProtTrtOff[idxArrMolecule+1].setName(deProtTrtOff[idxArrMolecule].getName()+fullProtectedMonomer.get(idxMatch).getDeprotectedForm() );
 				
 				idxArrMolecule++;
 			}
 		}
-		while(idxMatch != NO_MATCH);
+		while(idxMatch != NO_MATCH && idxSeqComp <= seqCompCount-2);
 		
 		
 	}
@@ -160,7 +177,7 @@ public class PmoSequence implements SiPmoSequence {
 
 
 interface SiPmoSequence{
-	public static final String delimiter = " ";
+	public static final String DELIMITER = " ";
 	
 	
 	public static final String TRITYL = "Trt";

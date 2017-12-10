@@ -27,16 +27,20 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 			ArrayList<BuildingBlock> miscGroup) {
 		int rtnUtilFunc;
 		BuildingBlock tempBuilingBlock = new BuildingBlock();
-		BuildingBlock[] arrTempFullProt, arrTempDeProt, arrTempProtGroup;
+		BuildingBlock[] arrTempFullProt, arrTempDeProt, arrTempFullProtFirst, arrTempDeprotFirst, arrTempMiscGroup;
 			arrTempFullProt = new BuildingBlock[ARR_TEMP_COMP_LEN];
 			arrTempDeProt = new BuildingBlock[ARR_TEMP_COMP_LEN];
-			arrTempProtGroup = new BuildingBlock[ARR_TEMP_COMP_LEN];
-		int idxArrTempFullProt, idxArrTempDeProt, idxArrTempProtGroup;
+			arrTempFullProtFirst = new BuildingBlock[ARR_TEMP_COMP_LEN];
+			arrTempDeprotFirst = new BuildingBlock[ARR_TEMP_COMP_LEN];
+			arrTempMiscGroup = new BuildingBlock[ARR_TEMP_COMP_LEN];
+		int idxArrTempFullProt, idxArrTempDeProt, idxArrTempFullProtFirst, idxArrTempDeprotFirst, idxArrTempProtGroup;
 		
 		
 		idxArrTempFullProt = -1;
 		idxArrTempDeProt = -1;
 		idxArrTempProtGroup = -1;
+		idxArrTempFullProtFirst = -1;
+		idxArrTempDeprotFirst = -1;
 		
 		rtnUtilFunc = END_OF_FILE + 1;
 		do{
@@ -50,9 +54,17 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 				idxArrTempDeProt++;
 				arrTempDeProt[idxArrTempDeProt] = tempBuilingBlock.clone();
 			}
+			else if(tempBuilingBlock.getKind() == FULLPROT_1ST) {
+				idxArrTempFullProtFirst++;
+				arrTempFullProtFirst[idxArrTempFullProtFirst] = tempBuilingBlock.clone();
+			}
+			else if(tempBuilingBlock.getKind() == DEPROT_1ST) {
+				idxArrTempDeprotFirst++;
+				arrTempDeprotFirst[idxArrTempDeprotFirst] = tempBuilingBlock.clone();
+			}
 			else if(tempBuilingBlock.getKind() == MISCGR) {
 				idxArrTempProtGroup++;
-				arrTempProtGroup[idxArrTempProtGroup] = tempBuilingBlock.clone();
+				arrTempMiscGroup[idxArrTempProtGroup] = tempBuilingBlock.clone();
 			}
 		}
 		while(rtnUtilFunc != END_OF_FILE);
@@ -63,8 +75,14 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 		for(int i = 0; i <= idxArrTempDeProt; i++)
 			deProtectedMonomer.add(arrTempDeProt[i].clone());
 		
+		for(int i = 0; i <= idxArrTempFullProtFirst; i++)
+			fullProtFirstMonomer.add(arrTempFullProtFirst[i].clone());
+				
+		for(int i = 0; i <= idxArrTempDeprotFirst; i++)
+			deProtFirstMonomer.add(arrTempDeprotFirst[i].clone());
+		
 		for(int i = 0; i <= idxArrTempProtGroup; i++)
-			miscGroup.add(arrTempProtGroup[i].clone());
+			miscGroup.add(arrTempMiscGroup[i].clone());
 		
 	
 	}
@@ -199,6 +217,10 @@ public class BuildingBlockReader implements SiBuildingBlockReader, SiTableReader
 		}
 		
 		return rtnUtilFunc;
+	}
+	
+	public void close() {
+		tabread.close();
 	}
 	
 	

@@ -1,8 +1,7 @@
 package chemspecies;
 
 public class Composition implements Cloneable {
-	
-//	private String name = null;
+
  	private Element constituentElement;
 	private int numAtom;
 	
@@ -75,6 +74,14 @@ public class Composition implements Cloneable {
 		temp.constituentElement = this.constituentElement;
 		
 		return temp;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder tempSb = new StringBuilder();
+		tempSb.append(constituentElement.getSymbol());
+		tempSb.append(numAtom);
+		return tempSb.toString();
 	}
 	
 	

@@ -118,6 +118,10 @@ public class ElementInfoReader implements SiElementInfoReader, SiTableReader {
 		return rtnUtilFunc;
 	}
 	
+	public void close() {
+		tabread.close();
+	}
+	
 }
 
 
