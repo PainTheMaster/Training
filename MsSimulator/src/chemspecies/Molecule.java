@@ -64,7 +64,7 @@ public class Molecule {
 	}
 	
 	
-	public Molecule add(Molecule that) {
+/*	public Molecule add(Molecule that) {
 		int maxLengthBuf, thatNumCompElem;
 		int idxLastBufComp, idxMatchCheck;
 		Composition[] bufComposition, poseComposition;
@@ -116,6 +116,10 @@ public class Molecule {
 		
 		return new Molecule(poseComposition);
 
+	}*/
+	
+	public Molecule add(Molecule that) {
+		return this.add(that.getComposition());
 	}
 	
 	
